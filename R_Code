@@ -1,0 +1,53 @@
+###################################
+#Title: Tidy Tuesday
+#Date: 2021-02-23
+#Author: Erin Griffin
+###################################
+#file.edit('~/.Renviron')
+
+#make sure these libraries are enabled
+library(tidyverse)
+library(scales)
+library(tidytuesdayR)
+
+#load the data
+tt <- tt_load("2021-02-23")
+
+#Get a glimpse
+tt %>%
+  map(glimpse)
+
+#create each dataset necessary for analysis
+earn <- tt$earn
+
+#play around with the dataset
+view(earn)
+head(earn)
+summary(earn)
+
+#find unique values in column
+unique(earn[c("age")])
+
+#create new columns
+earn['year_qtr'] = paste(earn$year,earn$quarter,sep=' Q')
+earn['year_dt'] = as.Date(paste(earn$year,"-01","-01",sep=""))
+#class(earn$year_dt)
+
+#ggplot
+earn %>%
+  filter(sex != "Both Sexes",
+         #race %in% c("White", "Black or African American"),
+         #ethnic_origin == "All Origins",
+         age %in% c("16 to 19 years", "20 to 24 years",
+                    "25 to 34 years","35 to 44 years","45 to 54 years","55 years and over"))  %>%
+  ggplot(aes(year_dt,median_weekly_earn,color=sex))+
+  geom_line(stat="summary", fun="mean")+
+  scale_color_manual(values = c("Men"="green", "Women"="purple"))+
+  #geom_point(stat="summary", fun="mean")+
+  facet_wrap(~age, nrow=1)+
+  labs( x="Year",y="Avg Weekly Earnings",title="Wage Gap by Gender & Age",
+        caption = "Source: US Bureau of Labor Statistics  |  Analysis: Erin Griffin (@eggriffin)")+
+  #scale_x_date(date_labels = "%Y", date_breaks = "5 years") +
+  theme_bw()
+
+  
